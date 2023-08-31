@@ -5,12 +5,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LoadEnvVar(path string) (envVar EnvironmentVariables, err error) {
-	viper.AddConfigPath(path)
-
+func LoadEnv() (envVar EnvironmentVariables, err error) {
+	viper.AddConfigPath(".")
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
-
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()

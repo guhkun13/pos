@@ -13,10 +13,11 @@ import (
 func main() {
 	config.SetupLogger()
 
-	env, errConfig := config.LoadEnvVar("../pizza-api")
-	if errConfig != nil {
-		log.Error().Err(errConfig)
+	env, errEnv := config.LoadEnv()
+	if errEnv != nil {
+		log.Error().Err(errEnv)
 	}
+
 	log.Info().Str("db host", env.Database.Host).Msg("config")
 	log.Info().Str("db host", env.Database.Password).Msg("config")
 
