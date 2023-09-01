@@ -7,25 +7,26 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"guhkun13/pizza-api/config"
-	"guhkun13/pizza-api/internal/routes"
+	"guhkun13/pizza-api/internal/router"
 )
 
-func main() {
-	config.SetupLogger()
+var env *config.EnvironmentVariables
 
-	env, errEnv := config.LoadEnv()
-	if errEnv != nil {
-		log.Error().Err(errEnv)
+// setups: logger, config, router + middleware, setup docs, graceful shutdown, run!
+func main() {
+	// init logger
+	config.InitLogger()
+
+	_, err := config.LoadEnv()
+	if err != nil {
+		log.Error().Err(err).Msg("load env error")
 	}
 
-	log.Info().Str("db host", env.Database.Host).Msg("config")
-	log.Info().Str("db host", env.Database.Password).Msg("config")
-
-	router := routes.NewRouter()
+	router := router.InitRouter()
 	port := 3333
 	addr := fmt.Sprintf(":%d", port)
 	log.Info().Msgf("Start server at %s", addr)
-	err := http.ListenAndServe(addr, router)
+	err = http.ListenAndServe(addr, router)
 	if err != nil {
 		panic(err)
 	}

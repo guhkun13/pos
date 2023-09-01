@@ -6,9 +6,7 @@ import (
 )
 
 func LoadEnv() (envVar EnvironmentVariables, err error) {
-	viper.AddConfigPath(".")
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
+	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()
