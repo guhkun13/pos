@@ -41,6 +41,7 @@ func (c Repository) GetIngredients() ([]Ingredient, error) {
 			Interface("vals", vals).
 			Msg("vals pools")
 
+		// yang ini gagal!
 		var ing Ingredient
 
 		fmt.Println("mau nge-scan")
@@ -48,7 +49,6 @@ func (c Repository) GetIngredients() ([]Ingredient, error) {
 		log.Info().
 			Interface("ing", ing.ID).
 			Msg("ing val -----")
-
 	}
 	log.Info().
 		Interface("rows", rows).
@@ -62,6 +62,7 @@ func (c Repository) GetIngredients() ([]Ingredient, error) {
 		os.Exit(1)
 	}
 
+	// this works!
 	ingredients, err := pgx.CollectRows(rows2, pgx.RowToStructByName[Ingredient])
 	log.Info().Interface("result", ingredients).Msg("Collect rows")
 
