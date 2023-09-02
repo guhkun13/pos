@@ -10,12 +10,13 @@ type EnvironmentVariables struct {
 		Username string `mapstructure:"USERNAME"`
 		Password string `mapstructure:"PASSWORD"`
 		Host     string `mapstructure:"HOST"`
-		Port     string `mapstructure:"PORT"`
+		Port     int    `mapstructure:"PORT"`
 		Name     string `mapstructure:"NAME"`
 	} `mapstructure:"DATABASE"`
 }
 
 func LoadEnv() (envVar EnvironmentVariables, err error) {
+	log.Info().Msg("Load Env Here")
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
 
