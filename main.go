@@ -10,7 +10,7 @@ import (
 
 	"guhkun13/pizza-api/config"
 	"guhkun13/pizza-api/database"
-	"guhkun13/pizza-api/internal/router"
+	"guhkun13/pizza-api/internal/domain/product/v1"
 )
 
 var env *config.EnvironmentVariables
@@ -30,13 +30,22 @@ func main() {
 	// init db
 	db := database.NewPgSqlConnection(&env)
 
-	// init router
-	router := router.InitRouter()
+	// setup router
+	// domain router
+	productHandler := product.NewHandler(&env)
+
+	// group of domain routers
+	domainRouters := DomainHandlers{
+		Product: productHandler,
+	}
+
+	// root router
+	router := NewRootRouter(domainRouters)
 
 	// start server
 	server := Server{
 		Port:   3333,
-		Router: router,
+		Router: router.Init(),
 		DB:     db,
 	}
 	server.Start()
