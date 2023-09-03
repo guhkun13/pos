@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 
-	"guhkun13/pizza-api/internal/domain/product/v1"
+	"guhkun13/pizza-api/internal/domain/product"
 )
 
 type RootRouter struct {

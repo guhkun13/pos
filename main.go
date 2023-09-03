@@ -10,7 +10,7 @@ import (
 
 	"guhkun13/pizza-api/config"
 	"guhkun13/pizza-api/database"
-	"guhkun13/pizza-api/internal/domain/product/v1"
+	"guhkun13/pizza-api/internal/domain/product"
 )
 
 var env *config.EnvironmentVariables
@@ -28,7 +28,7 @@ func main() {
 	}
 
 	// init db
-	db := database.NewPgSqlConnection(&env)
+	dbConn := database.NewPgSqlConn(&env)
 
 	// setup router
 	// domain router
@@ -46,7 +46,7 @@ func main() {
 	server := Server{
 		Port:   3333,
 		Router: router.Init(),
-		DB:     db,
+		DB:     dbConn,
 	}
 	server.Start()
 }
@@ -54,7 +54,7 @@ func main() {
 type Server struct {
 	Port   int
 	Router http.Handler
-	DB     *database.PgSqlConnection
+	DB     *database.PgSqlConn
 }
 
 func (s Server) Start() {
@@ -78,7 +78,7 @@ func (s Server) Start() {
 		}
 	}()
 
-	defer s.DB.PgPool.Close()
+	defer s.DB.Conn.Close()
 
 	fin.Wait()
 }

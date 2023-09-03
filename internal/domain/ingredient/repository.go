@@ -12,19 +12,19 @@ import (
 )
 
 type Repository struct {
-	pgConn *database.PgSqlConnection
+	db *database.PgSqlConn
 }
 
-func NewRepository(pgConn *database.PgSqlConnection) Repository {
+func NewRepository(dbConn *database.PgSqlConn) Repository {
 	log.Info().Msg("NewRepository")
 	return Repository{
-		pgConn: pgConn,
+		db: dbConn,
 	}
 }
 
 func (c Repository) GetIngredients() ([]Ingredient, error) {
 	log.Info().Msg("Repository.GetIngredients")
-	rows, err := c.pgConn.PgPool.Query(context.Background(), "SELECT * from ingredient")
+	rows, err := c.db.Conn.Query(context.Background(), "SELECT * from ingredient")
 	if err != nil {
 		log.Error().Err(err).Msg("something error")
 		os.Exit(1)
@@ -56,7 +56,7 @@ func (c Repository) GetIngredients() ([]Ingredient, error) {
 
 	log.Info().Msg("CARA KEDUAAA")
 
-	rows2, err := c.pgConn.PgPool.Query(context.Background(), "SELECT * from ingredient")
+	rows2, err := c.db.Conn.Query(context.Background(), "SELECT * from ingredient")
 	if err != nil {
 		log.Error().Err(err).Msg("something error")
 		os.Exit(1)

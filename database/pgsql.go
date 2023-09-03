@@ -11,13 +11,13 @@ import (
 	"guhkun13/pizza-api/config"
 )
 
-type PgSqlConnection struct {
-	PgPool *pgxpool.Pool
+type PgSqlConn struct {
+	Conn *pgxpool.Pool
 }
 
-func NewPgSqlConnection(config *config.EnvironmentVariables) *PgSqlConnection {
-	return &PgSqlConnection{
-		PgPool: CreateConnection(config),
+func NewPgSqlConn(env *config.EnvironmentVariables) *PgSqlConn {
+	return &PgSqlConn{
+		Conn: CreateConnection(env),
 	}
 }
 
