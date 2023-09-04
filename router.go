@@ -20,7 +20,7 @@ func NewRootRouter(handlers DomainHandlers) RootRouter {
 }
 
 type DomainHandlers struct {
-	Product product.Handler
+	Product *product.Handler
 }
 
 func (root *RootRouter) Init() http.Handler {
@@ -38,7 +38,7 @@ func (root *RootRouter) SetupMiddleware(mux *chi.Mux) {
 }
 
 func (root *RootRouter) SetupRoutesV1(mux *chi.Mux) {
-	mux.Route("/v1", func(r chi.Router) {
+	mux.Route("/", func(r chi.Router) {
 		root.DomainHandlers.Product.Handlers(r)
 	})
 }

@@ -4,34 +4,41 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/rs/zerolog/log"
 
 	"guhkun13/pizza-api/config"
 )
 
 type Handler struct {
-	Env *config.EnvironmentVariables
+	Env     *config.EnvironmentVariables
+	Service *Service
 }
 
-func NewHandler(env *config.EnvironmentVariables) Handler {
-	return Handler{
-		Env: env,
+func NewHandler(env *config.EnvironmentVariables, service *Service) *Handler {
+	return &Handler{
+		Env:     env,
+		Service: service,
 	}
 }
 
-func (h Handler) Handlers(rc chi.Router) {
+func (h *Handler) Handlers(rc chi.Router) {
 	rc.Get("/product", h.GetProductHandler)
-	h.SubProductHandler(rc)
-}
-
-func (h Handler) GetProductHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("get product"))
-}
-
-func (h Handler) GetSubProductHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("get sub-product"))
+	rc.Route("/sub", func(r chi.Router) {
+		h.SubProductHandler(r)
+	})
 }
 
 func (h *Handler) SubProductHandler(rc chi.Router) {
+	log.Info().Msg("SubProductHandler")
+	rc.Get("/x", h.GetSubProductHandler)
+}
 
-	rc.Get("/sub-product", h.GetSubProductHandler)
+func (h *Handler) GetProductHandler(w http.ResponseWriter, r *http.Request) {
+	res := h.Service.GetProduct()
+	w.Write([]byte(res))
+}
+
+func (h *Handler) GetSubProductHandler(w http.ResponseWriter, r *http.Request) {
+	res := h.Service.GetProduct()
+	w.Write([]byte(res))
 }

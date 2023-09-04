@@ -30,17 +30,16 @@ func main() {
 	// init db
 	dbConn := database.NewPgSqlConn(&env)
 
-	// setup router
-	// domain router
-	productHandler := product.NewHandler(&env)
+	// setup handler
+	service := product.NewService(&env)
+	productHandler := product.NewHandler(&env, service)
 
-	// group of domain routers
-	domainRouters := DomainHandlers{
+	domainHandlers := DomainHandlers{
 		Product: productHandler,
 	}
 
 	// root router
-	router := NewRootRouter(domainRouters)
+	router := NewRootRouter(domainHandlers)
 
 	// start server
 	server := Server{
@@ -72,7 +71,6 @@ func (s Server) Start() {
 	fin.Add(srv)
 
 	go func() {
-
 		if err != http.ErrServerClosed {
 			log.Fatal().Err(err)
 		}
