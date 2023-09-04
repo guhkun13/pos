@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,7 +11,6 @@ import (
 
 	"guhkun13/pizza-api/config"
 	"guhkun13/pizza-api/database"
-	"guhkun13/pizza-api/internal/domain/product"
 )
 
 var env *config.EnvironmentVariables
@@ -28,14 +28,28 @@ func main() {
 	}
 
 	// init db
-	dbConn := database.NewPgSqlConn(&env)
+	db := database.NewPgSqlConn(&env)
+	defer db.Conn.Close()
+
+	fmt.Println("HALO DISINI YAK")
+	rows, err := db.Conn.Query(context.Background(), "select * from ingredient")
+	if err != nil {
+		fmt.Println("ERORR CUK")
+	}
+	log.Info().
+		Interface("rows", rows).
+		Interface("rows aff", rows.CommandTag().RowsAffected()).
+		Msg("result")
 
 	// setup handler
-	service := product.NewService(&env)
-	productHandler := product.NewHandler(&env, service)
+	// categoryRepo := category.NewRepository(db)
+	// categorySrv := category.NewService(&env, categoryRepo)
+
+	// productService := product.NewService(&env, categorySrv)
+	// productHandler := product.NewHandler(&env, productService)
 
 	domainHandlers := DomainHandlers{
-		Product: productHandler,
+		// Product: productHandler,
 	}
 
 	// root router
@@ -45,7 +59,7 @@ func main() {
 	server := Server{
 		Port:   3333,
 		Router: router.Init(),
-		DB:     dbConn,
+		DB:     db,
 	}
 	server.Start()
 }

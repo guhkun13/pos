@@ -20,7 +20,7 @@ func NewIngredientService(
 	}
 }
 
-func (s IngredientService) Get() string {
+func (s *IngredientService) Get() string {
 	log.Info().Msg("IngredientService.Get")
 
 	rows, err := s.Repository.GetIngredients()

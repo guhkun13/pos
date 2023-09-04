@@ -3,12 +3,13 @@ package database
 import (
 	"context"
 	"fmt"
-	"os"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog/log"
 
 	"guhkun13/pizza-api/config"
+	"guhkun13/pizza-api/internal/domain/category"
 )
 
 type PgSqlConn struct {
@@ -30,16 +31,56 @@ func CreateConnection(config *config.EnvironmentVariables) *pgxpool.Pool {
 		config.Database.Port,
 		config.Database.Name,
 	)
-
 	log.Info().Str("dsn", dsn).Msg("dsn")
 
-	dbpool, err := pgxpool.New(context.Background(), dsn)
+	conn, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
-		log.Error().Err(err)
-		os.Exit(1)
+		log.Error().Err(err).Msgf("unable to connect to database %s", dsn)
+		panic("gagal konek")
 	}
 
-	log.Info().Msg("return dbpool")
+	err = conn.Ping(context.Background())
+	if err != nil {
+		fmt.Println("PANIC BANG")
+		panic(err)
+	}
 
-	return dbpool
+	log.Info().Msg("database is connected")
+	TestQuery(conn)
+
+	return conn
+}
+
+func TestQuery(conn *pgxpool.Pool) {
+	fmt.Println("TEST QUERY BANG")
+	rows, err := conn.Query(context.Background(), "SELECT * from category")
+	if err != nil {
+		log.Error().Err(err).Msg("something error")
+	}
+
+	// var items []category.Category
+
+	fmt.Println("CEK NEXT")
+	if rows.Next() {
+		fmt.Println("ADA NEXT!")
+		vals, err := rows.Values()
+		if err != nil {
+			fmt.Println("NAH ERROR")
+		}
+
+		items, err := pgx.CollectRows(rows, pgx.RowToStructByName[category.Category])
+		log.Info().Interface("result", items).Msg("Collect rows")
+		if err != nil {
+			fmt.Println("ERROR WHEN SCAN")
+			log.Error().Err(err).Msg("EM")
+		}
+
+		log.Info().
+			Interface("vals", vals).
+			Interface("scanned", items).
+			Msg("result")
+	}
+
+	fmt.Println("DONE")
+
 }
