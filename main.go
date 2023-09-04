@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +10,9 @@ import (
 
 	"guhkun13/pizza-api/config"
 	"guhkun13/pizza-api/database"
+	"guhkun13/pizza-api/internal/domain/category"
+	"guhkun13/pizza-api/internal/domain/product"
+	"guhkun13/pizza-api/router"
 )
 
 var env *config.EnvironmentVariables
@@ -28,32 +30,23 @@ func main() {
 	}
 
 	// init db
-	db := database.NewPgSqlConn(&env)
-	defer db.Conn.Close()
-
-	fmt.Println("HALO DISINI YAK")
-	rows, err := db.Conn.Query(context.Background(), "select * from ingredient")
-	if err != nil {
-		fmt.Println("ERORR CUK")
-	}
-	log.Info().
-		Interface("rows", rows).
-		Interface("rows aff", rows.CommandTag().RowsAffected()).
-		Msg("result")
+	db := database.NewDatabase(&env)
+	defer db.Close()
 
 	// setup handler
-	// categoryRepo := category.NewRepository(db)
-	// categorySrv := category.NewService(&env, categoryRepo)
+	categoryRepo := category.NewRepository(db)
+	category.NewService(&env, categoryRepo)
 
-	// productService := product.NewService(&env, categorySrv)
-	// productHandler := product.NewHandler(&env, productService)
+	productRepo := product.NewRepository(db)
+	srv := product.NewService(&env, productRepo)
+	productHandler := product.NewHandler(&env, *srv)
 
-	domainHandlers := DomainHandlers{
-		// Product: productHandler,
+	domainHandlers := router.DomainHandlers{
+		Product: productHandler,
 	}
 
 	// root router
-	router := NewRootRouter(domainHandlers)
+	router := router.NewRootRouter(domainHandlers)
 
 	// start server
 	server := Server{
@@ -61,13 +54,18 @@ func main() {
 		Router: router.Init(),
 		DB:     db,
 	}
-	server.Start()
+	server.Start2()
 }
 
 type Server struct {
 	Port   int
 	Router http.Handler
-	DB     *database.PgSqlConn
+	DB     *database.Database
+}
+
+func (s Server) Start2() {
+	addr := fmt.Sprintf(":%d", s.Port)
+	http.ListenAndServe(addr, s.Router)
 }
 
 func (s Server) Start() {
@@ -84,13 +82,9 @@ func (s Server) Start() {
 	err := srv.ListenAndServe()
 	fin.Add(srv)
 
-	go func() {
-		if err != http.ErrServerClosed {
-			log.Fatal().Err(err)
-		}
-	}()
-
-	defer s.DB.Conn.Close()
+	if err != http.ErrServerClosed {
+		log.Fatal().Err(err)
+	}
 
 	fin.Wait()
 }

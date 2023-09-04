@@ -6,15 +6,18 @@ import (
 	"guhkun13/pizza-api/config"
 )
 
+type ServiceIface interface {
+	GetCategory(id int) CategoryResponse
+}
 type Service struct {
-	// Repo Repository
-	Env *config.EnvironmentVariables
+	Repo Repository
+	Env  *config.EnvironmentVariables
 }
 
-func NewService(env *config.EnvironmentVariables) *Service {
+func NewService(env *config.EnvironmentVariables, repo Repository) *Service {
 	return &Service{
-		// Repo: repo,
-		Env: env,
+		Repo: repo,
+		Env:  env,
 	}
 }
 

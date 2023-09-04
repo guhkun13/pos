@@ -1,37 +1,28 @@
 package product
 
 import (
-	"fmt"
-
-	"github.com/rs/zerolog/log"
+	"context"
 
 	"guhkun13/pizza-api/config"
-	"guhkun13/pizza-api/internal/domain/category"
 )
 
 type Service struct {
-	Env             *config.EnvironmentVariables
-	CategoryService *category.Service
+	Env  *config.EnvironmentVariables
+	Repo Repository
 }
 
 func NewService(
 	env *config.EnvironmentVariables,
-	categorySrv *category.Service,
+	repo Repository,
 ) *Service {
 	return &Service{
-		Env:             env,
-		CategoryService: categorySrv,
+		Env:  env,
+		Repo: repo,
 	}
 }
 
-func (s *Service) GetProduct() string {
-	log.Info().Msg("Service GetProduct")
-
-	name := "truck"
-	// category := "toys"
-	category := s.CategoryService.GetCategory(1)
-	log.Info().Interface("category", category).Msg("in service")
-
-	res := fmt.Sprintf("nama product: %s dari kategori: %s", name, category)
-	return res
+// Interface sbg kontrak, apa saja method2 yang mesti di-implement oleh Service
+type ServiceInterface interface {
+	GetProduct(ctx context.Context, id int) string
+	CreateProduct(ctx context.Context, name string) string
 }
