@@ -9,7 +9,6 @@ import (
 )
 
 func (r Repository) GetProductById(ctx context.Context, id int) (product Product) {
-
 	log.Info().Int("id", id).Msg("Repository.GetProductById")
 	sql := fmt.Sprintf("select * from product where id=%d", id)
 	log.Info().Msgf("sql = %s ", sql)
@@ -31,9 +30,7 @@ func (r Repository) GetProductById(ctx context.Context, id int) (product Product
 		fmt.Println("ERROR WHEN SCAN")
 		log.Error().Err(err).Msg("EM")
 	}
-
 	product = items[0]
-
 	log.Info().Interface("product", product).Msg("final result")
 	return
 }

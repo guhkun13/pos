@@ -14,8 +14,8 @@ type Service struct {
 func NewService(
 	env *config.EnvironmentVariables,
 	repo Repository,
-) *Service {
-	return &Service{
+) Service {
+	return Service{
 		Env:  env,
 		Repo: repo,
 	}

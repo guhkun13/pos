@@ -39,7 +39,7 @@ func main() {
 
 	productRepo := product.NewRepository(db)
 	srv := product.NewService(&env, productRepo)
-	productHandler := product.NewHandler(&env, *srv)
+	productHandler := product.NewHandler(srv)
 
 	domainHandlers := router.DomainHandlers{
 		Product: productHandler,
@@ -54,18 +54,14 @@ func main() {
 		Router: router.Init(),
 		DB:     db,
 	}
-	server.Start2()
+
+	server.Start()
 }
 
 type Server struct {
 	Port   int
 	Router http.Handler
 	DB     *database.Database
-}
-
-func (s Server) Start2() {
-	addr := fmt.Sprintf(":%d", s.Port)
-	http.ListenAndServe(addr, s.Router)
 }
 
 func (s Server) Start() {

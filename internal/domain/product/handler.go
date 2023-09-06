@@ -1,24 +1,27 @@
 package product
 
 import (
+	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 
-	"guhkun13/pizza-api/config"
 	response "guhkun13/pizza-api/shared"
 )
 
 type Handler struct {
-	Env     *config.EnvironmentVariables
+	// Env     *config.EnvironmentVariables
 	Service Service
 }
 
-func NewHandler(env *config.EnvironmentVariables, srv Service) Handler {
+func NewHandler(
+	// env *config.EnvironmentVariables,
+	srv Service) Handler {
 	return Handler{
-		Env:     env,
+		// Env:     env,
 		Service: srv,
 	}
 }
@@ -26,8 +29,38 @@ func NewHandler(env *config.EnvironmentVariables, srv Service) Handler {
 func (h *Handler) Handlers(mux chi.Router) {
 	mux.Route("/product", func(r chi.Router) {
 		r.Get("/{id}", h.GetProduct)
-		// r.Post("/", h.CreateProduct)
+		r.Get("/html", h.ShowHtml)
 	})
+
+}
+
+type Todo struct {
+	Title string
+	Done  bool
+}
+
+type TodoPageData struct {
+	PageTitle string
+	Todos     []Todo
+}
+
+func (h *Handler) ShowHtml(w http.ResponseWriter, r *http.Request) {
+
+	tmplf, err := template.ParseFiles("html/layout.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	tmpl := template.Must(tmplf, err)
+
+	data := TodoPageData{
+		PageTitle: "My TODO list",
+		Todos: []Todo{
+			{Title: "Task A", Done: false},
+			{Title: "Task 2", Done: true},
+			{Title: "Task 3", Done: true},
+		},
+	}
+	tmpl.Execute(w, data)
 }
 
 func (h *Handler) GetProduct(w http.ResponseWriter, r *http.Request) {
